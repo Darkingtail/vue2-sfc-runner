@@ -1,60 +1,62 @@
 # vue2-sfc-runner
 
-Vue 2 SFC 运行时环境，提供浏览器端编译和 iframe 沙箱预览能力。
+[中文文档](./README.zh-CN.md)
 
-## 作用与目的
+Vue 2 SFC runtime with browser-based compilation and iframe sandbox preview capabilities.
 
-本包是 `vue2-sfc-compiler` 的上层封装，专为浏览器环境设计，提供：
+## Purpose
 
-- **CDN 加载器**：按需加载 Babel、Less、Sass 等编译依赖
-- **浏览器编译器**：预配置的编译器，开箱即用
-- **iframe 沙箱**：隔离的预览环境，支持自定义 Vue 插件和组件库
-- **预览渲染器**：高级 API，一键完成编译和预览
+This package is a higher-level wrapper around `vue2-sfc-compiler`, designed specifically for browser environments:
 
-## 包结构
+- **CDN Loader**: Load Babel, Less, Sass and other compilation dependencies on demand
+- **Browser Compiler**: Pre-configured compiler, ready to use out of the box
+- **iframe Sandbox**: Isolated preview environment with support for custom Vue plugins and component libraries
+- **Preview Renderer**: High-level API for one-step compilation and preview
+
+## Package Structure
 
 ```
 vue2-sfc-runner/
 ├── src/
-│   ├── index.ts              # 入口，统一导出所有模块
-│   ├── types.ts              # 类型定义
-│   ├── loader/               # CDN 加载器
-│   │   ├── index.ts          # 加载器入口
-│   │   └── cdn.ts            # CDN 资源加载
-│   ├── sandbox/              # iframe 沙箱
-│   │   ├── index.ts          # 沙箱入口
-│   │   ├── iframe.ts         # iframe 管理
-│   │   └── srcdoc.ts         # iframe HTML 模板生成
-│   └── renderer/             # 预览渲染
-│       ├── index.ts          # 渲染器入口
-│       ├── compiler.ts       # 浏览器编译器封装
-│       └── preview.ts        # 预览渲染器
-├── dist/                     # 构建产物
+│   ├── index.ts              # Entry, exports all modules
+│   ├── types.ts              # Type definitions
+│   ├── loader/               # CDN loader
+│   │   ├── index.ts          # Loader entry
+│   │   └── cdn.ts            # CDN resource loading
+│   ├── sandbox/              # iframe sandbox
+│   │   ├── index.ts          # Sandbox entry
+│   │   ├── iframe.ts         # iframe management
+│   │   └── srcdoc.ts         # iframe HTML template generation
+│   └── renderer/             # Preview rendering
+│       ├── index.ts          # Renderer entry
+│       ├── compiler.ts       # Browser compiler wrapper
+│       └── preview.ts        # Preview renderer
+├── dist/                     # Build output
 ├── package.json
 └── tsup.config.ts
 ```
 
-## 文件说明
+## File Description
 
-| 文件/目录 | 作用 |
-|-----------|------|
-| `index.ts` | 包入口，重新导出所有子模块和 `vue2-sfc-compiler` |
-| `types.ts` | CDNConfig、PreviewStatus、IframeMessage 等类型 |
-| `loader/cdn.ts` | 动态加载 Babel、Less、Sass 等 CDN 资源 |
-| `sandbox/srcdoc.ts` | 生成 iframe 的 srcdoc HTML，配置 Vue 运行环境 |
-| `sandbox/iframe.ts` | 创建和管理 iframe 实例，处理 postMessage 通信 |
-| `renderer/compiler.ts` | 封装 `createBrowserCompiler`，自动配置 Babel |
-| `renderer/preview.ts` | 高级预览 API，整合编译器和沙箱 |
+| File/Directory | Purpose |
+|----------------|---------|
+| `index.ts` | Package entry, re-exports all submodules and `vue2-sfc-compiler` |
+| `types.ts` | CDNConfig, PreviewStatus, IframeMessage types |
+| `loader/cdn.ts` | Dynamically load CDN resources (Babel, Less, Sass, etc.) |
+| `sandbox/srcdoc.ts` | Generate iframe srcdoc HTML, configure Vue runtime environment |
+| `sandbox/iframe.ts` | Create and manage iframe instances, handle postMessage communication |
+| `renderer/compiler.ts` | Wraps `createBrowserCompiler` with auto-configured Babel |
+| `renderer/preview.ts` | High-level preview API, integrates compiler and sandbox |
 
-## 使用场景
+## Use Cases
 
-- **组件预览**：在线编辑器中实时预览 Vue 2 组件
-- **低代码平台**：运行用户配置的组件代码
-- **文档演示**：交互式组件示例
+- **Component Preview**: Real-time Vue 2 component preview in online editors
+- **Low-code Platforms**: Run user-configured component code
+- **Documentation Demos**: Interactive component examples
 
-## 使用方法
+## Usage
 
-### 方式一：直接使用编译器和沙箱（推荐）
+### Method 1: Direct Compiler and Sandbox (Recommended)
 
 ```javascript
 import {
@@ -63,7 +65,7 @@ import {
   generateSrcdoc,
 } from 'vue2-sfc-runner'
 
-// 1. 生成 iframe srcdoc（包含 Vue 运行环境）
+// 1. Generate iframe srcdoc (includes Vue runtime environment)
 const srcdoc = generateSrcdoc({
   vue: 'https://cdn.jsdelivr.net/npm/vue@2.7.16/dist/vue.js',
   customScripts: [
@@ -74,15 +76,15 @@ const srcdoc = generateSrcdoc({
   ],
 })
 
-// 2. 设置 iframe
+// 2. Set up iframe
 const iframe = document.getElementById('preview')
 iframe.srcdoc = srcdoc
 
-// 3. 编译 SFC
+// 3. Compile SFC
 const compiler = createBrowserCompiler()
 const result = await compileSFCToCommonJS(compiler, sfcCode)
 
-// 4. 发送到 iframe 执行
+// 4. Send to iframe for execution
 iframe.contentWindow.postMessage({
   type: 'eval',
   modules: { 'App.vue': result.js },
@@ -91,7 +93,7 @@ iframe.contentWindow.postMessage({
 }, '*')
 ```
 
-### 方式二：使用预览渲染器（高级封装）
+### Method 2: Preview Renderer (High-level API)
 
 ```javascript
 import { createPreviewRenderer } from 'vue2-sfc-runner'
@@ -105,47 +107,47 @@ const renderer = await createPreviewRenderer({
   onError: (err) => console.error('Error:', err),
 })
 
-// 预览组件
+// Preview component
 await renderer.preview(sfcCode)
 
-// 更新预览
+// Update preview
 await renderer.update(newSfcCode)
 
-// 销毁
+// Destroy
 renderer.destroy()
 ```
 
-### 方式三：仅使用 CDN 加载器
+### Method 3: CDN Loader Only
 
 ```javascript
 import { loadBabel, loadLess, waitForBabel } from 'vue2-sfc-runner'
 
-// 加载 Babel
+// Load Babel
 await loadBabel()
 await waitForBabel()
 
-// 现在可以使用 window.Babel
+// Now window.Babel is available
 ```
 
-## CDN 配置
+## CDN Configuration
 
 ```typescript
 interface CDNConfig {
   babel?: string              // Babel standalone CDN
-  vue?: string                // Vue 2.7 CDN（iframe 内使用）
+  vue?: string                // Vue 2.7 CDN (used inside iframe)
   less?: string               // Less.js CDN
   sass?: string               // Sass.js CDN
-  webpackPublicPath?: string  // UMD chunk 懒加载路径
-  customScripts?: string[]    // 自定义 JS（如组件库）
-  customStyles?: string[]     // 自定义 CSS
+  webpackPublicPath?: string  // UMD chunk lazy loading path
+  customScripts?: string[]    // Custom JS (e.g., component libraries)
+  customStyles?: string[]     // Custom CSS
 }
 ```
 
-## iframe 消息协议
+## iframe Message Protocol
 
-主应用与 iframe 通过 postMessage 通信：
+Main application communicates with iframe via postMessage:
 
-**发送到 iframe：**
+**Send to iframe:**
 ```javascript
 {
   type: 'eval',
@@ -155,20 +157,24 @@ interface CDNConfig {
 }
 ```
 
-**从 iframe 接收：**
+**Receive from iframe:**
 ```javascript
-{ type: 'ready' }                    // iframe 就绪
-{ type: 'rendered' }                 // 组件渲染完成
-{ type: 'error', payload: {...} }    // 运行时错误
-{ type: 'console', level, args }     // 控制台输出
+{ type: 'ready' }                    // iframe ready
+{ type: 'rendered' }                 // Component rendered
+{ type: 'error', payload: {...} }    // Runtime error
+{ type: 'console', level, args }     // Console output
 ```
 
-## 依赖关系
+## Dependencies
 
 ```
 vue2-sfc-runner
     │
-    └── vue2-sfc-compiler（已内置 JSX 支持）
+    └── vue2-sfc-compiler (with built-in JSX support)
 ```
 
-本包重新导出了 `vue2-sfc-compiler` 的所有 API，使用时只需安装 `vue2-sfc-runner` 即可获得全部功能（包括 JSX 编译能力）。
+This package re-exports all APIs from `vue2-sfc-compiler`. Simply install `vue2-sfc-runner` to get full functionality including JSX compilation capabilities.
+
+## License
+
+MIT
