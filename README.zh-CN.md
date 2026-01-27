@@ -43,7 +43,7 @@ vue2-sfc-runner/
 | `loader/cdn.ts` | 动态加载 Babel、Less、Sass 等 CDN 资源 |
 | `sandbox/srcdoc.ts` | 生成 iframe 的 srcdoc HTML，配置 Vue 运行环境 |
 | `sandbox/iframe.ts` | 创建和管理 iframe 实例，处理 postMessage 通信 |
-| `renderer/compiler.ts` | 封装 `createBrowserCompiler`，自动配置 Babel |
+| `renderer/compiler.ts` | 创建浏览器编译器，自动配置 Babel 和样式预处理器 |
 | `renderer/preview.ts` | 高级预览 API，整合编译器和沙箱 |
 
 ## 使用场景
@@ -59,7 +59,6 @@ vue2-sfc-runner/
 ```javascript
 import {
   createBrowserCompiler,
-  compileSFCToCommonJS,
   generateSrcdoc,
 } from 'vue2-sfc-runner'
 
@@ -78,9 +77,9 @@ const srcdoc = generateSrcdoc({
 const iframe = document.getElementById('preview')
 iframe.srcdoc = srcdoc
 
-// 3. 编译 SFC
+// 3. 编译 SFC 为 CommonJS
 const compiler = createBrowserCompiler()
-const result = await compileSFCToCommonJS(compiler, sfcCode)
+const result = await compiler.compileToCommonJS(sfcCode, 'App')
 
 // 4. 发送到 iframe 执行
 iframe.contentWindow.postMessage({

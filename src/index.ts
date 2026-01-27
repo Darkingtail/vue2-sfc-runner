@@ -17,6 +17,7 @@ export {
 export type {
   CompilerOptions,
   CompileResult,
+  CommonJSResult,
   UMDOptions,
   Compiler,
   BabelTransformFn,
@@ -47,8 +48,6 @@ export type { SandboxOptions, Sandbox } from './sandbox'
 // Renderer
 export {
   createBrowserCompiler,
-  toCommonJS,
-  compileSFCToCommonJS,
   createPreviewRenderer,
 } from './renderer'
 export type { PreviewRendererOptions, PreviewRenderer } from './renderer'

@@ -4,7 +4,7 @@
  */
 
 import type { Compiler } from 'vue2-sfc-compiler'
-import { createBrowserCompiler, compileSFCToCommonJS } from './compiler'
+import { createBrowserCompiler } from './compiler'
 import { createSandbox, type Sandbox, type SandboxOptions } from '../sandbox'
 import { loadAllCDN, waitForBabel, isBabelLoaded } from '../loader'
 import type { PreviewStatus, RunnerCompileResult } from '../types'
@@ -100,7 +100,7 @@ export async function createPreviewRenderer(
     onConsole,
   })
 
-  // Compile SFC
+  // Compile SFC to CommonJS (using compiler.compileToCommonJS directly)
   const compile = async (
     code: string,
     filename = 'Component.vue'
@@ -110,7 +110,8 @@ export async function createPreviewRenderer(
     }
 
     try {
-      const result = await compileSFCToCommonJS(compiler, code, filename)
+      // Use compiler.compileToCommonJS directly - no additional compilation in runner
+      const result = await compiler.compileToCommonJS(code, filename)
       return {
         js: result.js,
         css: result.css,

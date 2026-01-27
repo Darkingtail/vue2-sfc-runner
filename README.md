@@ -45,7 +45,7 @@ vue2-sfc-runner/
 | `loader/cdn.ts` | Dynamically load CDN resources (Babel, Less, Sass, etc.) |
 | `sandbox/srcdoc.ts` | Generate iframe srcdoc HTML, configure Vue runtime environment |
 | `sandbox/iframe.ts` | Create and manage iframe instances, handle postMessage communication |
-| `renderer/compiler.ts` | Wraps `createBrowserCompiler` with auto-configured Babel |
+| `renderer/compiler.ts` | Creates browser compiler with auto-configured Babel and style preprocessors |
 | `renderer/preview.ts` | High-level preview API, integrates compiler and sandbox |
 
 ## Use Cases
@@ -61,7 +61,6 @@ vue2-sfc-runner/
 ```javascript
 import {
   createBrowserCompiler,
-  compileSFCToCommonJS,
   generateSrcdoc,
 } from 'vue2-sfc-runner'
 
@@ -80,9 +79,9 @@ const srcdoc = generateSrcdoc({
 const iframe = document.getElementById('preview')
 iframe.srcdoc = srcdoc
 
-// 3. Compile SFC
+// 3. Compile SFC to CommonJS
 const compiler = createBrowserCompiler()
-const result = await compileSFCToCommonJS(compiler, sfcCode)
+const result = await compiler.compileToCommonJS(sfcCode, 'App')
 
 // 4. Send to iframe for execution
 iframe.contentWindow.postMessage({

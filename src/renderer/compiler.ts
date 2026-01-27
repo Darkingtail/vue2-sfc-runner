@@ -1,10 +1,11 @@
 /**
  * Browser Compiler
- * Wraps vue2-sfc-compiler for browser use with CDN-loaded Babel
+ * Creates compiler instance with browser-loaded Babel and style preprocessors
+ * All compilation is done by vue2-sfc-compiler, this module only provides configuration
  */
 
 import { createCompiler, createVue2JsxPreset } from 'vue2-sfc-compiler'
-import type { Compiler, CompileResult, BabelTransformFn } from 'vue2-sfc-compiler'
+import type { Compiler, BabelTransformFn } from 'vue2-sfc-compiler'
 
 /**
  * Style preprocessor for Less
@@ -48,6 +49,7 @@ async function scssPreprocessor(source: string): Promise<string> {
 
 /**
  * Babel transform function for browser
+ * Uses @babel/standalone loaded via CDN
  */
 const babelTransform: BabelTransformFn = (code, options) => {
   if (!window.Babel) {
@@ -65,6 +67,7 @@ const babelTransform: BabelTransformFn = (code, options) => {
 
 /**
  * Create a browser-compatible compiler instance
+ * All compilation methods (compileSFC, compileToCommonJS, compileToUMD) are provided by vue2-sfc-compiler
  */
 export function createBrowserCompiler(): Compiler {
   return createCompiler({
@@ -76,55 +79,4 @@ export function createBrowserCompiler(): Compiler {
     },
     vue2JsxPreset: createVue2JsxPreset(null),
   })
-}
-
-/**
- * Convert ES modules to CommonJS for sandbox execution
- */
-export function toCommonJS(esCode: string): string {
-  if (!window.Babel) {
-    throw new Error('[Compiler] Babel standalone is not loaded.')
-  }
-
-  const result = window.Babel.transform(esCode, {
-    presets: [['env', { modules: 'cjs' }]],
-  })
-
-  let cjsCode = result?.code || esCode
-
-  // Fix Vue.extend() issue for Vue 2
-  cjsCode = cjsCode.replace(/_vue\["default"]\.extend\({/g, '({')
-  cjsCode = cjsCode.replace(/_vue\.default\.extend\({/g, '({')
-
-  return cjsCode
-}
-
-/**
- * Compile SFC and convert to CommonJS
- * vue2-sfc-compiler outputs ES module format, we convert to CommonJS for sandbox
- */
-export async function compileSFCToCommonJS(
-  compiler: Compiler,
-  code: string,
-  name = 'Component'
-): Promise<CompileResult> {
-  const result = await compiler.compileSFC(code, name)
-
-  if (result.errors.length > 0) {
-    return result
-  }
-
-  // Convert ES module to CommonJS for sandbox execution
-  let jsCode = toCommonJS(result.js)
-
-  // Fix Vue.extend() issue for Vue 2
-  jsCode = jsCode.replace(/_vue\["default"]\.extend\({/g, '({')
-  jsCode = jsCode.replace(/_vue\.default\.extend\({/g, '({')
-
-  return {
-    js: jsCode,
-    css: result.css,
-    errors: result.errors,
-    name: result.name,
-  }
 }
