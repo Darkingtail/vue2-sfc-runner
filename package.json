@@ -1,6 +1,6 @@
 {
   "name": "vue2-sfc-runner",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "packageManager": "pnpm@10.0.0",
   "description": "Vue 2 SFC runtime with compilation, sandbox, and preview support",
   "author": "darkingtail",
